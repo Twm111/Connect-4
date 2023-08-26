@@ -7,5 +7,8 @@ int input(int *);
 void position(struct pattern *,int);
 //need fixing 1
 void grillFiller(struct pattern *,int);
+int stateCheck(struct pattern *,int);
+int dirStateCheck(int,int,int,struct pattern *);
+
 
 #endif

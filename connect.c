@@ -25,6 +25,7 @@ int main(void)
   while (1)
   {
     struct pattern current;
+    printf("Player %d >",(pieces == 'O') ? 1 : 2);
     status = input(&value);
     if(status != OK)
     {
@@ -41,8 +42,11 @@ int main(void)
     }
     position(&current,value -  1);
     printf("columns = %d \n lines = %d\n",current.columns,current.lines);
+    int max = stateCheck(&current,pieces);
+    printf("The number of pieces is equal to %d\n",max);
     grillFiller(&current,pieces);
     grillOutput();
+    pieces = (pieces == 'O') ? 'X' : 'O';
   }
   
   return 0;
@@ -127,4 +131,19 @@ void position(struct pattern *current,int column)
 void grillFiller(struct pattern *current,int pieces)
 {
   grid[current->columns][current->lines] = pieces;
+}
+
+int stateCheck(struct pattern *current, int pieces) 
+{
+    int max = dirStateCheck(1,0,pieces,current);
+    return OK;
+}
+
+int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
+{
+    int i = 1;
+    while (grid[current->columns][current->lines] == pieces) {
+        i++;
+    }
+    return 0;
 }
