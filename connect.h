@@ -9,7 +9,7 @@ void position(struct pattern *,int);
 void grillFiller(struct pattern *,int);
 int stateCheck(struct pattern *,int);
 int dirStateCheck(int,int,int,struct pattern *);
-bool positionCheck(struct pattern *current);
-
+bool positionCheck(int,int);
+int maximal(int,int);
 
 #endif

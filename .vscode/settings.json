@@ -1,0 +1,6 @@
+{
+    "cmake.sourceDirectory": "/workspaces/Connect-4",
+    "files.associations": {
+        "stdio.h": "c"
+    }
+}

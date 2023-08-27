@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define COLS 7
 #define LINES 6
@@ -135,28 +136,43 @@ void grillFiller(struct pattern *current,int pieces)
 
 int stateCheck(struct pattern *current, int pieces) 
 {
-    int max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current);
+    int max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current) - 1;
+    //max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
+    //max = maximal(max,dirStateCheck(0,1,pieces,current) + dirStateCheck(0,-1,pieces,current)) - 1;
     return max;
 }
 
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
 {
-    int i = 1;
+    int i = 0;
     int vert = current->columns;
     int hor = current->lines;
     while(grid[vert][hor] == pieces) {
-
-        i++;
-		vert += vertical;
-		hor += horizontal;
+      if(!positionCheck(vert,hor))
+      {
+        break;
+      }
+      printf("i = %d\n",i);
+      i++;
+      vert += vertical;
+      hor += horizontal;
     }
     return i;
 }
 
-bool positionCheck(struct pattern *current)
+bool positionCheck(int cols,int lines)
 {
-    if (current->columns > 7 || current->columns < 0) {
-    
+    if (cols > 7 || cols < 0) {
+        return false;
+    }
+    else if(lines > 6 || lines < 0)
+    {
+        return false;
     }
     return true;
+}
+
+int maximal(int a,int b)
+{
+  return (a > b) ? a : b;
 }
