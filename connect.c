@@ -135,19 +135,19 @@ void grillFiller(struct pattern *current,int pieces)
 
 int stateCheck(struct pattern *current, int pieces) 
 {
-    int max = dirStateCheck(1,0,pieces,current);
-    return OK;
+    int max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current);
+    return max;
 }
 
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
 {
     int i = 1;
-    int vert = current->columns;
-    int hor = current->lines;
+    int vert = current->lines;
+    int hor = current->columns;
     while (grid[vert][hor] == pieces) {
         i++;
 		vert += vertical;
 		hor += horizontal;
     }
-    return 0;
+    return i;
 }
