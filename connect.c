@@ -142,12 +142,21 @@ int stateCheck(struct pattern *current, int pieces)
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
 {
     int i = 1;
-    int vert = current->lines;
-    int hor = current->columns;
-    while (grid[vert][hor] == pieces) {
+    int vert = current->columns;
+    int hor = current->lines;
+    while(grid[vert][hor] == pieces) {
+
         i++;
 		vert += vertical;
 		hor += horizontal;
     }
     return i;
+}
+
+bool positionCheck(struct pattern *current)
+{
+    if (current->columns > 7 || current->columns < 0) {
+    
+    }
+    return true;
 }
