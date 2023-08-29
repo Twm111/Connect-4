@@ -43,9 +43,9 @@ int main(void)
     }
     position(&current,value -  1);
     printf("columns = %d \n lines = %d\n",current.columns,current.lines);
+    grillFiller(&current,pieces);
     int max = stateCheck(&current,pieces);
     printf("The number of pieces is equal to %d\n",max);
-    grillFiller(&current,pieces);
     grillOutput();
     pieces = (pieces == 'O') ? 'X' : 'O';
   }
@@ -136,23 +136,26 @@ void grillFiller(struct pattern *current,int pieces)
 
 int stateCheck(struct pattern *current, int pieces) 
 {
+    //horizontal align check
     int max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current) - 1;
-    //max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
-    //max = maximal(max,dirStateCheck(0,1,pieces,current) + dirStateCheck(0,-1,pieces,current)) - 1;
+    //Vertical align check
+    max = maximal(max,dirStateCheck(0,1,pieces,current) + dirStateCheck(0,-1,pieces,current) - 1);
+    //diagonally
+    max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
+    max = maximal(max,dirStateCheck(-1,1,pieces,current) + dirStateCheck(1,-1,pieces,current) - 1);
     return max;
 }
 
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
 {
     int i = 0;
-    int vert = current->columns;
-    int hor = current->lines;
-    while(grid[vert][hor] == pieces) {
-      if(!positionCheck(vert,hor))
+    int vert = current->lines;
+    int hor = current->columns;
+    while(grid[hor][vert] == pieces) {
+      if(!positionCheck(hor,vert))
       {
         break;
       }
-      printf("i = %d\n",i);
       i++;
       vert += vertical;
       hor += horizontal;
@@ -162,10 +165,10 @@ int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *curr
 
 bool positionCheck(int cols,int lines)
 {
-    if (cols > 7 || cols < 0) {
+    if (cols > 6 || cols < 0) {
         return false;
     }
-    else if(lines > 6 || lines < 0)
+    else if(lines > 5 || lines < 0)
     {
         return false;
     }
