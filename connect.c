@@ -7,6 +7,8 @@
 #define OK 1
 #define AGAIN 2
 #define QUIT 3
+#define WIN 4
+#define DRAW 5
 
 struct pattern
 {
@@ -44,10 +46,17 @@ int main(void)
     position(&current,value -  1);
     printf("columns = %d \n lines = %d\n",current.columns,current.lines);
     grillFiller(&current,pieces);
-    int max = stateCheck(&current,pieces);
-    printf("The number of pieces is equal to %d\n",max);
+    status = stateCheck(&current,pieces);
     grillOutput();
+    if(status !=OK)
+    {
+      break;
+    }
     pieces = (pieces == 'O') ? 'X' : 'O';
+  }
+  if (status == WIN)
+  {
+    fprintf(stderr,"The player %d win the game !\n",());
   }
   
   return 0;
@@ -143,7 +152,16 @@ int stateCheck(struct pattern *current, int pieces)
     //diagonally
     max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
     max = maximal(max,dirStateCheck(-1,1,pieces,current) + dirStateCheck(1,-1,pieces,current) - 1);
-    return max;
+    if (max >= 4 )
+    {
+      return WIN;
+    }
+    else if (gridFull())
+    {
+      return DRAW;
+    }
+    
+    return OK;
 }
 
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
