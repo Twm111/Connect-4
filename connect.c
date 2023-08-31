@@ -56,7 +56,11 @@ int main(void)
   }
   if (status == WIN)
   {
-    fprintf(stderr,"The player %d win the game !\n",());
+    fprintf(stderr,"The player %d win the game !\n",(pieces == 'O') ? 1 : 2);
+  }
+  else
+  {
+    fprintf(stderr,"The grid is full and no one win the game !\n");
   }
   
   return 0;
@@ -196,4 +200,23 @@ bool positionCheck(int cols,int lines)
 int maximal(int a,int b)
 {
   return (a > b) ? a : b;
+}
+
+bool gridFull(void)
+{
+  int i = 1;
+  for (int j = 0; j < 7; j++)
+  {
+    if (grid[0][i] == ' ')
+    {
+      break;
+    }
+    i++;
+    
+  }
+  if (i == 7)
+  {
+    return true;
+  }
+  return false;
 }
