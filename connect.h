@@ -11,5 +11,6 @@ int stateCheck(struct pattern *,int);
 int dirStateCheck(int,int,int,struct pattern *);
 bool positionCheck(int,int);
 int maximal(int,int);
+bool gridFull(void);
 
 #endif
