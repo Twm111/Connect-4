@@ -112,7 +112,6 @@ int input(int *value,int a,int b)
         case 'Q':
           return QUIT;
         default:
-        //missing empty functions definition
           if(empty(stdin) != OK)
           {
             fprintf(stderr,"Error while empty the stream !\n");
@@ -203,8 +202,8 @@ int stateCheck(struct pattern *current, int pieces)
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
 {
     int i = 0;
-    int vert = current->lines;
-    int hor = current->columns;
+    int vert = current->lines - vertical;
+    int hor = current->columns - horizontal;
     while(grid[hor][vert] == pieces) {
       if(!positionCheck(hor,vert))
       {
@@ -256,7 +255,7 @@ bool gridFull(void)
 int ai(void)
 {
   int max = 0;
-  int previous;
+  int length;
   int bestColumn;
   int bestColumns[COLS];
   for(int i = 0;i < COLS;i++)
@@ -267,26 +266,25 @@ int ai(void)
       continue;
 
     position(&current,i);
-    previous = stateCheck(&current,'O');
-    printf("%d\n",previous);
+    length = stateCheck(&current,'O') + 1;
 
-    if(previous >= 4)
+    if(length >= 4)
       return i;
 
-    previous = maximal(previous,stateCheck(&current,'X'));
+    length = maximal(length,stateCheck(&current,'X') + 1);
 
-    if(previous >= max)
+    if(length >= max)
     {
-      if(previous > max)
+      if(length > max)
       {
         bestColumn = 0;
-        max = previous;
+        max = length;
       }
       bestColumns[bestColumn] = i;
       bestColumn++;
     }
   }
-  return bestColumns[randNum(1,bestColumn)];
+  return bestColumns[randNum(0,bestColumn)];
 }
 
 double random(void)
@@ -312,6 +310,7 @@ int empty(FILE *stream)
 int state(struct pattern *current,int pieces)
 {
   int val = stateCheck(current,pieces);
+  printf("val = %d\n",val);
   if (val >= 4 )
   {
     return WIN;
