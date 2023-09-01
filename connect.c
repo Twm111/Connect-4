@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define COLS 7
 #define LINES 6
@@ -22,31 +23,63 @@ char grid[COLS][LINES];
 
 int main(void)
 {
-  grillInit();
-  grillOutput();
-  int value,status,pieces = 'O';
-  while (1)
+  time_t t;
+  if(time(&t) == (time_t)-1)
   {
-    struct pattern current;
-    printf("Player %d >",(pieces == 'O') ? 1 : 2);
-    status = input(&value);
+    fprintf(stderr,"Error while calling the time function !\n");
+    return EXIT_FAILURE;
+  }
+  srand((unsigned)t);
+  grillInit();
+  int value,status,pieces = 'O';
+  printf("How many players ?\n>");
+  int players;
+  while(1)
+  {
+    int status = input(&players,1,2);
     if(status != OK)
     {
       if(status == AGAIN)
       {
-        printf("AGAIN\n");
         continue;
       }
       else
       {
-        printf("QUIT\n");
         return 0;
       }
     }
-    position(&current,value -  1);
+    break;
+  }
+  grillOutput();
+  while (1)
+  {
+    struct pattern current;
+    if(players == 1 && pieces == 'X')
+    {
+      value = ai();
+      printf("ai : %d",value);
+      position(&current,value);
+    }
+    else
+    {
+      printf("Player %d >",(pieces == 'O') ? 1 : 2);
+      status = input(&value,1,7);
+      if(status != OK)
+      {
+        if(status == AGAIN)
+        {
+          continue;
+        }
+        else
+        {
+          return 0;
+        }
+      }
+      position(&current,value -  1);
+    }
     printf("columns = %d \n lines = %d\n",current.columns,current.lines);
     grillFiller(&current,pieces);
-    status = stateCheck(&current,pieces);
+    status = state(&current,pieces);
     grillOutput();
     if(status !=OK)
     {
@@ -66,7 +99,7 @@ int main(void)
   return 0;
 }
 
-int input(int *value)
+int input(int *value,int a,int b)
 {
   while(!scanf("%d",value))
   {
@@ -78,10 +111,18 @@ int input(int *value)
         case 'q':
         case 'Q':
           return QUIT;
+        default:
+        //missing empty functions definition
+          if(empty(stdin) != OK)
+          {
+            fprintf(stderr,"Error while empty the stream !\n");
+            return AGAIN;
+          }
+          continue;
       }
     }
   }
-  if(*value < 1 || *value > 7)
+  if(*value < a || *value > b)
   {
     return AGAIN;
   }
@@ -156,16 +197,7 @@ int stateCheck(struct pattern *current, int pieces)
     //diagonally
     max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
     max = maximal(max,dirStateCheck(-1,1,pieces,current) + dirStateCheck(1,-1,pieces,current) - 1);
-    if (max >= 4 )
-    {
-      return WIN;
-    }
-    else if (gridFull())
-    {
-      return DRAW;
-    }
-    
-    return OK;
+    return max;
 }
 
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
@@ -219,4 +251,75 @@ bool gridFull(void)
     return true;
   }
   return false;
+}
+
+int ai(void)
+{
+  int max = 0;
+  int previous;
+  int bestColumn;
+  int bestColumns[COLS];
+  for(int i = 0;i < COLS;i++)
+  {
+    struct pattern current;
+    
+    if(grid[i][0] != ' ')
+      continue;
+
+    position(&current,i);
+    previous = stateCheck(&current,'O');
+    printf("%d\n",previous);
+
+    if(previous >= 4)
+      return i;
+
+    previous = maximal(previous,stateCheck(&current,'X'));
+
+    if(previous >= max)
+    {
+      if(previous > max)
+      {
+        bestColumn = 0;
+        max = previous;
+      }
+      bestColumns[bestColumn] = i;
+      bestColumn++;
+    }
+  }
+  return bestColumns[randNum(1,bestColumn)];
+}
+
+double random(void)
+{
+  return rand() / (RAND_MAX + 1.);
+}
+
+int randNum(int min,int max)
+{
+  return random() * (max - min + 1) + min;
+}
+
+int empty(FILE *stream)
+{
+  int c;
+  do
+  {
+    c = fgetc(stream);
+  } while (c != '\n' || c != EOF);
+  return ferror(stream) ? QUIT : OK;
+}
+
+int state(struct pattern *current,int pieces)
+{
+  int val = stateCheck(current,pieces);
+  if (val >= 4 )
+  {
+    return WIN;
+  }
+  else if (gridFull())
+  {
+    return DRAW;
+  }
+  
+  return OK;
 }
