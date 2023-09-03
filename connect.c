@@ -56,9 +56,8 @@ int main(void)
     struct pattern current;
     if(players == 1 && pieces == 'X')
     {
-      value = ai();
+      value = ai() + 1;
       printf("ai : %d",value);
-      position(&current,value);
     }
     else
     {
@@ -68,6 +67,11 @@ int main(void)
       {
         if(status == AGAIN)
         {
+          if(empty(stdin) != OK)
+          {
+            fprintf(stderr,"Error while empty the stream !\n");
+            return EXIT_FAILURE;
+          }
           continue;
         }
         else
@@ -75,8 +79,8 @@ int main(void)
           return 0;
         }
       }
-      position(&current,value -  1);
     }
+    position(&current,value -  1);
     printf("columns = %d \n lines = %d\n",current.columns,current.lines);
     grillFiller(&current,pieces);
     status = state(&current,pieces);
@@ -112,12 +116,7 @@ int input(int *value,int a,int b)
         case 'Q':
           return QUIT;
         default:
-          if(empty(stdin) != OK)
-          {
-            fprintf(stderr,"Error while empty the stream !\n");
-            return AGAIN;
-          }
-          continue;
+          return AGAIN;
       }
     }
   }
@@ -191,19 +190,28 @@ int stateCheck(struct pattern *current, int pieces)
 {
     //horizontal align check
     int max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current) - 1;
+    printf("max = %d\n",max);
     //Vertical align check
     max = maximal(max,dirStateCheck(0,1,pieces,current) + dirStateCheck(0,-1,pieces,current) - 1);
+    printf("max = %d\n",max);
     //diagonally
     max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
+    printf("max = %d\n",max);
     max = maximal(max,dirStateCheck(-1,1,pieces,current) + dirStateCheck(1,-1,pieces,current) - 1);
+    printf("max = %d\n",max);
     return max;
 }
 
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
 {
-    int i = 0;
-    int vert = current->lines - vertical;
-    int hor = current->columns - horizontal;
+    int i = 1;
+    int vert = current->lines + vertical;
+    int hor = current->columns + horizontal;
+    if(!positionCheck(hor,vert))
+      {
+        return i;
+      }
+    printf("vert = %d\nhor = %d",vert,hor);
     while(grid[hor][vert] == pieces) {
       if(!positionCheck(hor,vert))
       {
@@ -213,6 +221,7 @@ int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *curr
       vert += vertical;
       hor += horizontal;
     }
+    printf("i = %d\n",i);
     return i;
 }
 
@@ -235,21 +244,15 @@ int maximal(int a,int b)
 
 bool gridFull(void)
 {
-  int i = 1;
-  for (int j = 0; j < 7; j++)
+  for (int j = 0; j < LINES; j++)
   {
-    if (grid[0][i] == ' ')
+    if (grid[0][j] == ' ')
     {
+      return false;
       break;
     }
-    i++;
-    
   }
-  if (i == 7)
-  {
     return true;
-  }
-  return false;
 }
 
 int ai(void)
@@ -310,7 +313,7 @@ int empty(FILE *stream)
 int state(struct pattern *current,int pieces)
 {
   int val = stateCheck(current,pieces);
-  printf("val = %d\n",val);
+  printf("columns = %d\nlines = %d\nval = %d\n",current->columns,current->lines,val);
   if (val >= 4 )
   {
     return WIN;
