@@ -85,6 +85,10 @@ int main(void)
         }
       }
     }
+    if(!validPosition(value))
+    {
+      continue;
+    }
     position(&current,value -  1);
     grillFiller(&current,pieces);
     grillOutput();
@@ -207,18 +211,13 @@ int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *curr
     int i = 1;
     int vert = current->lines + vertical;
     int hor = current->columns + horizontal;
-    if(!positionCheck(hor,vert))
+    while(positionCheck(vert,hor)) {
+      if(grid[hor][vert] == pieces)
       {
-        return i;
+        i++;
+        vert += vertical;
+        hor += horizontal;
       }
-    while(grid[hor][vert] == pieces) {
-      if(!positionCheck(hor,vert))
-      {
-        break;
-      }
-      i++;
-      vert += vertical;
-      hor += horizontal;
     }
     return i;
 }
@@ -256,12 +255,12 @@ bool gridFull(void)
 int ai(void)
 {
   int max = 0;
-  int length;
-  int bestColumn;
+  int bestColumn = 0;
   int bestColumns[COLS];
   for(int i = 0;i < COLS;i++)
   {
     struct pattern current;
+    unsigned length;
     
     if(grid[i][0] != ' ')
       continue;
@@ -271,8 +270,8 @@ int ai(void)
 
     if(length >= 4)
       return i;
-
     length = maximal(length,stateCheck(&current,'X'));
+
 
     if(length >= max)
     {
@@ -281,11 +280,10 @@ int ai(void)
         bestColumn = 0;
         max = length;
       }
-      bestColumns[bestColumn] = i;
-      bestColumn++;
+      bestColumns[bestColumn++] = i;
     }
   }
-  return bestColumns[randNum(0,bestColumn)];
+  return bestColumns[randNum(0,bestColumn - 1)];
 }
 
 double random(void)
@@ -321,4 +319,14 @@ int state(struct pattern *current,int pieces)
   }
   
   return OK;
+}
+
+int validPosition(int value)
+{
+  if(value <= 0 || value >= COLS || grid[value - 1][0] != ' ')
+  {
+    return 0;
+  }
+
+  return 1;
 }
