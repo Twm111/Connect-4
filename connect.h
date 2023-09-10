@@ -17,6 +17,6 @@ int empty(FILE *);
 double random(void);
 int randNum(int,int);
 int ai(void);
-int validPosition(struct pattern *);
+int validPosition(int);
 
 #endif

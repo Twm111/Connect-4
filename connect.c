@@ -10,6 +10,8 @@
 #define QUIT 3
 #define WIN 4
 #define DRAW 5
+#define J1_PIECES 'O'
+#define J2_PIECES 'X'
 
 struct pattern
 {
@@ -59,14 +61,19 @@ int main(void)
   while (1)
   {
     struct pattern current;
-    if(players == 1 && pieces == 'X')
+    if(players == 1 && pieces == J1_PIECES)
     {
-      value = ai() + 1;
-      printf("ai : %d\n",value);
+      value = ai();
+      printf("ai > %d\n",value + 1);
+      position(&current,value);
+      if (!positionCheck(current.columns,current.lines))
+      {
+        continue;
+      }
     }
     else
     {
-      printf("Player %d >",(pieces == 'O') ? 1 : 2);
+      printf("Player %d >",(pieces == J2_PIECES) ? 2 : 1);
       status = input(&value,1,7);
       if(status != OK)
       {
@@ -84,24 +91,27 @@ int main(void)
           return 0;
         }
       }
+      else
+      {
+        position(&current,value -  1);
+        if(!validPosition(value))
+        {
+          continue;
+        }
+      }
     }
-    if(!validPosition(value))
-    {
-      continue;
-    }
-    position(&current,value -  1);
-    grillFiller(&current,pieces);
+    grid[current.columns][current.lines] = pieces;
     grillOutput();
     status = state(&current,pieces);
     if(status !=OK)
     {
       break;
     }
-    pieces = (pieces == 'O') ? 'X' : 'O';
+    pieces = (pieces == J1_PIECES) ? J2_PIECES : J1_PIECES;
   }
   if (status == WIN)
   {
-    fprintf(stderr,"The player %d win the game !\n",(pieces == 'O') ? 1 : 2);
+    fprintf(stderr,"The player %d win the game !\n",(pieces == J1_PIECES) ? 1 : 2);
   }
   else
   {
@@ -189,18 +199,10 @@ void position(struct pattern *current,int column)
   current->lines = line;
 }
 
-void grillFiller(struct pattern *current,int pieces)
-{
-  grid[current->columns][current->lines] = pieces;
-}
-
 int stateCheck(struct pattern *current, int pieces) 
 {
-    //horizontal align check
-    int max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current) - 1;
-    //Vertical align check
-    max = maximal(max,dirStateCheck(0,1,pieces,current) + dirStateCheck(0,-1,pieces,current) - 1);
-    //diagonally
+    int max = dirStateCheck(0,1,pieces,current);
+    max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current) - 1;
     max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
     max = maximal(max,dirStateCheck(-1,1,pieces,current) + dirStateCheck(1,-1,pieces,current) - 1);
     return max;
@@ -218,6 +220,11 @@ int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *curr
         vert += vertical;
         hor += horizontal;
       }
+      else
+      {
+        break;
+      }
+      
     }
     return i;
 }
