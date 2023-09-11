@@ -340,6 +340,24 @@ int validPosition(int value)
 
 int saving(void)
 {
-  
+  FILE *stream = fopen("game", "wb");
+  if (stream == NULL)
+  {
+    fprintf(stderr, "Error while opening the stream !\n");
+    return QUIT;
+  }
+  size_t weight = sizeof grid / sizeof grid[0][0];
+
+  if (fwrite(&grid, sizeof grid[0][0], weight, stream) != weight)
+  {
+    fprintf(stderr, "Error while writing in the stream !\n");
+    return QUIT;
+  }
+  if (fclose(stream) == EOF)
+  {
+    fprintf(stderr, "Error while closing the stream !\n");
+    return QUIT;
+  }
+
   return OK;
 }
