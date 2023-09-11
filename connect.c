@@ -26,26 +26,26 @@ char grid[COLS][LINES];
 int main(void)
 {
   time_t t;
-  if(time(&t) == (time_t)-1)
+  if (time(&t) == (time_t)-1)
   {
-    fprintf(stderr,"Error while calling the time function !\n");
+    fprintf(stderr, "Error while calling the time function !\n");
     return EXIT_FAILURE;
   }
   srand((unsigned)t);
   grillInit();
-  int value,status,pieces = 'O';
+  int value, status, pieces = 'O';
   printf("How many players ?\n>");
   int players;
-  while(1)
+  while (1)
   {
-    int status = input(&players,1,2);
-    if(status != OK)
+    int status = input(&players, 1, 2);
+    if (status != OK)
     {
-      if(status == AGAIN)
+      if (status == AGAIN)
       {
-        if(!empty(stdin))
+        if (!empty(stdin))
         {
-          fprintf(stderr,"Error while emptying the stream !\n");
+          fprintf(stderr, "Error while emptying the stream !\n");
           return EXIT_FAILURE;
         }
         continue;
@@ -61,27 +61,27 @@ int main(void)
   while (1)
   {
     struct pattern current;
-    if(players == 1 && pieces == J1_PIECES)
+    if (players == 1 && pieces == J1_PIECES)
     {
       value = ai();
-      printf("ai > %d\n",value + 1);
-      position(&current,value);
-      if (!positionCheck(current.columns,current.lines))
+      printf("ai > %d\n", value + 1);
+      position(&current, value);
+      if (!positionCheck(current.columns, current.lines))
       {
         continue;
       }
     }
     else
     {
-      printf("Player %d >",(pieces == J2_PIECES) ? 2 : 1);
-      status = input(&value,1,7);
-      if(status != OK)
+      printf("Player %d >", (pieces == J2_PIECES) ? 2 : 1);
+      status = input(&value, 1, 7);
+      if (status != OK)
       {
-        if(status == AGAIN)
+        if (status == AGAIN)
         {
-          if(empty(stdin) != OK)
+          if (empty(stdin) != OK)
           {
-            fprintf(stderr,"Error while empty the stream !\n");
+            fprintf(stderr, "Error while empty the stream !\n");
             return EXIT_FAILURE;
           }
           continue;
@@ -93,8 +93,8 @@ int main(void)
       }
       else
       {
-        position(&current,value -  1);
-        if(!validPosition(value))
+        position(&current, value - 1);
+        if (!validPosition(value))
         {
           continue;
         }
@@ -102,8 +102,8 @@ int main(void)
     }
     grid[current.columns][current.lines] = pieces;
     grillOutput();
-    status = state(&current,pieces);
-    if(status !=OK)
+    status = state(&current, pieces);
+    if (status != OK)
     {
       break;
     }
@@ -111,34 +111,34 @@ int main(void)
   }
   if (status == WIN)
   {
-    fprintf(stderr,"The player %d win the game !\n",(pieces == J1_PIECES) ? 1 : 2);
+    fprintf(stderr, "The player %d win the game !\n", (pieces == J1_PIECES) ? 1 : 2);
   }
   else
   {
-    fprintf(stderr,"The grid is full and no one win the game !\n");
+    fprintf(stderr, "The grid is full and no one win the game !\n");
   }
-  
+
   return 0;
 }
 
-int input(int *value,int a,int b)
+int input(int *value, int a, int b)
 {
-  while(!scanf("%d",value))
+  while (!scanf("%d", value))
   {
     char letter;
-    while (scanf("%c",&letter))
+    while (scanf("%c", &letter))
     {
-      switch(letter)
+      switch (letter)
       {
-        case 'q':
-        case 'Q':
-          return QUIT;
-        default:
-          return AGAIN;
+      case 'q':
+      case 'Q':
+        return QUIT;
+      default:
+        return AGAIN;
       }
     }
   }
-  if(*value < a || *value > b)
+  if (*value < a || *value > b)
   {
     return AGAIN;
   }
@@ -147,23 +147,23 @@ int input(int *value,int a,int b)
 
 void grillOutput(void)
 {
-  for(int i=1;i<=COLS;i++)
-    printf("  %d ",i);
+  for (int i = 1; i <= COLS; i++)
+    printf("  %d ", i);
   putchar('\n');
 
-    for (int j = 0; j < LINES; j++)
+  for (int j = 0; j < LINES; j++)
+  {
+    putchar('+');
+    for (int k = 0; k < COLS; k++)
     {
-      putchar('+');
-      for (int k = 0; k < COLS; k++)
-      {
-        printf("---+");
-      }
-      putchar('\n');
-      putchar('|');
-      for(int l = 0;l < COLS;l++)
-      {
-        printf(" %c |",grid[l][j]);
-      }
+      printf("---+");
+    }
+    putchar('\n');
+    putchar('|');
+    for (int l = 0; l < COLS; l++)
+    {
+      printf(" %c |", grid[l][j]);
+    }
     putchar('\n');
   }
   putchar('+');
@@ -172,8 +172,8 @@ void grillOutput(void)
     printf("---+");
   }
   putchar('\n');
-  for(int i=1;i<=COLS;i++)
-    printf("  %d ",i);
+  for (int i = 1; i <= COLS; i++)
+    printf("  %d ", i);
   putchar('\n');
 }
 
@@ -188,10 +188,10 @@ void grillInit(void)
   }
 }
 
-void position(struct pattern *current,int column)
+void position(struct pattern *current, int column)
 {
   int line = LINES - 1;
-  while(grid[column][line] != ' ' && line > 0)
+  while (grid[column][line] != ' ' && line > 0)
   {
     line--;
   }
@@ -199,49 +199,50 @@ void position(struct pattern *current,int column)
   current->lines = line;
 }
 
-int stateCheck(struct pattern *current, int pieces) 
+int stateCheck(struct pattern *current, int pieces)
 {
-    int max = dirStateCheck(0,1,pieces,current);
-    max = dirStateCheck(1,0,pieces,current) + dirStateCheck(-1,0,pieces,current) - 1;
-    max = maximal(max,dirStateCheck(1,1,pieces,current) + dirStateCheck(-1,-1,pieces,current) - 1);
-    max = maximal(max,dirStateCheck(-1,1,pieces,current) + dirStateCheck(1,-1,pieces,current) - 1);
-    return max;
+  int max = dirStateCheck(0, 1, pieces, current);
+  max = dirStateCheck(1, 0, pieces, current) + dirStateCheck(-1, 0, pieces, current) - 1;
+  max = maximal(max, dirStateCheck(1, 1, pieces, current) + dirStateCheck(-1, -1, pieces, current) - 1);
+  max = maximal(max, dirStateCheck(-1, 1, pieces, current) + dirStateCheck(1, -1, pieces, current) - 1);
+  return max;
 }
 
 int dirStateCheck(int horizontal, int vertical, int pieces, struct pattern *current)
 {
-    int i = 1;
-    int vert = current->lines + vertical;
-    int hor = current->columns + horizontal;
-    while(positionCheck(vert,hor)) {
-      if(grid[hor][vert] == pieces)
-      {
-        i++;
-        vert += vertical;
-        hor += horizontal;
-      }
-      else
-      {
-        break;
-      }
-      
-    }
-    return i;
-}
-
-bool positionCheck(int cols,int lines)
-{
-    if (cols > 6 || cols < 0) {
-        return false;
-    }
-    else if(lines > 5 || lines < 0)
+  int i = 1;
+  int vert = current->lines + vertical;
+  int hor = current->columns + horizontal;
+  while (positionCheck(vert, hor))
+  {
+    if (grid[hor][vert] == pieces)
     {
-        return false;
+      i++;
+      vert += vertical;
+      hor += horizontal;
     }
-    return true;
+    else
+    {
+      break;
+    }
+  }
+  return i;
 }
 
-int maximal(int a,int b)
+bool positionCheck(int cols, int lines)
+{
+  if (cols > 6 || cols < 0)
+  {
+    return false;
+  }
+  else if (lines > 5 || lines < 0)
+  {
+    return false;
+  }
+  return true;
+}
+
+int maximal(int a, int b)
 {
   return (a > b) ? a : b;
 }
@@ -256,7 +257,7 @@ bool gridFull(void)
       break;
     }
   }
-    return true;
+  return true;
 }
 
 int ai(void)
@@ -264,25 +265,24 @@ int ai(void)
   int max = 0;
   int bestColumn = 0;
   int bestColumns[COLS];
-  for(int i = 0;i < COLS;i++)
+  for (int i = 0; i < COLS; i++)
   {
     struct pattern current;
     unsigned length;
-    
-    if(grid[i][0] != ' ')
+
+    if (grid[i][0] != ' ')
       continue;
 
-    position(&current,i);
-    length = stateCheck(&current,'O');
+    position(&current, i);
+    length = stateCheck(&current, 'O');
 
-    if(length >= 4)
+    if (length >= 4)
       return i;
-    length = maximal(length,stateCheck(&current,'X'));
+    length = maximal(length, stateCheck(&current, 'X'));
 
-
-    if(length >= max)
+    if (length >= max)
     {
-      if(length > max)
+      if (length > max)
       {
         bestColumn = 0;
         max = length;
@@ -290,7 +290,7 @@ int ai(void)
       bestColumns[bestColumn++] = i;
     }
   }
-  return bestColumns[randNum(0,bestColumn - 1)];
+  return bestColumns[randNum(0, bestColumn - 1)];
 }
 
 double random(void)
@@ -298,7 +298,7 @@ double random(void)
   return rand() / (RAND_MAX + 1.);
 }
 
-int randNum(int min,int max)
+int randNum(int min, int max)
 {
   return random() * (max - min + 1) + min;
 }
@@ -313,10 +313,10 @@ int empty(FILE *stream)
   return ferror(stream) ? QUIT : OK;
 }
 
-int state(struct pattern *current,int pieces)
+int state(struct pattern *current, int pieces)
 {
-  int val = stateCheck(current,pieces);
-  if (val >= 4 )
+  int val = stateCheck(current, pieces);
+  if (val >= 4)
   {
     return WIN;
   }
@@ -324,16 +324,22 @@ int state(struct pattern *current,int pieces)
   {
     return DRAW;
   }
-  
+
   return OK;
 }
 
 int validPosition(int value)
 {
-  if(value <= 0 || value >= COLS || grid[value - 1][0] != ' ')
+  if (value <= 0 || value >= COLS || grid[value - 1][0] != ' ')
   {
     return 0;
   }
 
   return 1;
+}
+
+int saving(void)
+{
+  
+  return OK;
 }
